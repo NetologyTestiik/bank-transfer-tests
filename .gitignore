@@ -1,0 +1,45 @@
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*.swo
+
+# Build
+build/
+out/
+target/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+
+# Gradle
+.gradle/
+gradle-app.setting
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Selenide downloads
+build/downloads/
+
+# Test reports
+build/reports/tests/test/  # ????????? ?????? index.html
+!build/reports/tests/test/index.html
+
+# Local configuration
+*.properties
+*.env
+
+# Temp files
+tmp/
+temp/
