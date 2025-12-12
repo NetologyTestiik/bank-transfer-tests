@@ -1,36 +1,43 @@
 package ru.netology.page;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.Condition;
+import ru.netology.page.TransferPage;
 
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.*;
 
 public class DashboardPage {
     
     public DashboardPage() {
-        // Проверяем, что мы на странице Dashboard
-        $("[data-test-id='dashboard']").shouldBe(visible);
+        // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РјС‹ РЅР° СЃС‚СЂР°РЅРёС†Рµ Dashboard
+        $("[data-test-id='dashboard']").shouldBe(Condition.visible);
     }
-    
-    // Проверка наличия карт по последним 4 цифрам
+
+    // РџСЂРѕРІРµСЂРєР° РІРёРґРёРјРѕСЃС‚Рё РєР°СЂС‚ СЃ С‡РµС‚С‹СЂСЊРјСЏ С†РёС„СЂР°РјРё
     public void cardsShouldBeVisible() {
-        $("body").shouldHave(text("**** 0001"));
-        $("body").shouldHave(text("**** 0002"));
+        $("body").shouldHave(Condition.text("**** 0001"));
+        $("body").shouldHave(Condition.text("**** 0002"));
     }
-    
-    // Проверка и клик по кнопке "Пополнить" для конкретной карты
-    public TransferPage clickDepositButton() {
-        $("[data-test-id='action-deposit']")
-                .shouldBe(visible)
-                .shouldHave(text("Пополнить"))
-                .click();
+
+    // РќР°Р¶Р°С‚РёРµ РЅР° РєРЅРѕРїРєСѓ "РџРѕРїРѕР»РЅРёС‚СЊ" РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРЅРѕР№ РєР°СЂС‚С‹
+    public TransferPage clickDepositOnFirstCard() {
+        $("[data-test-id='92df3f1c-a033-48e6-8390-206f6b1f56c0'] [data-test-id='action-deposit']")
+            .shouldBe(Condition.visible)
+            .shouldHave(Condition.text("РџРѕРїРѕР»РЅРёС‚СЊ"))
+            .click();
         return new TransferPage();
     }
     
-    // Метод для получения баланса (если нужно в будущем)
+    public TransferPage clickDepositOnSecondCard() {
+        $("[data-test-id='0f3f5c2a-249e-4c3d-8287-09f7a039391d'] [data-test-id='action-deposit']")
+            .shouldBe(Condition.visible)
+            .shouldHave(Condition.text("РџРѕРїРѕР»РЅРёС‚СЊ"))
+            .click();
+        return new TransferPage();
+    }
+
+    // РњРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ Р±Р°Р»Р°РЅСЃР° (РµСЃР»Рё РЅСѓР¶РЅРѕ РІ Р±СѓРґСѓС‰РµРј)
     public int getCardBalance(String lastFourDigits) {
         ElementsCollection cards = $$(".list__item");
         for (SelenideElement card : cards) {
@@ -41,16 +48,48 @@ public class DashboardPage {
         }
         return 0;
     }
-    
+
     private int extractBalance(String text) {
-        String balanceStart = "баланс: ";
-        String balanceFinish = " р.";
-        int start = text.indexOf(balanceStart);
-        int finish = text.indexOf(balanceFinish);
-        if (start == -1 || finish == -1) {
+        String balanceStart = "Р±Р°Р»Р°РЅСЃ: ";
+        String balanceFinish = " СЂ.";
+        
+        int startIndex = text.indexOf(balanceStart);
+        if (startIndex == -1) return 0;
+        
+        startIndex += balanceStart.length();
+        int endIndex = text.indexOf(balanceFinish, startIndex);
+        
+        if (endIndex == -1) return 0;
+        
+        String balanceStr = text.substring(startIndex, endIndex)
+            .replaceAll("\\s+", "")
+            .replaceAll("[^0-9]", "");
+        
+        try {
+            return Integer.parseInt(balanceStr);
+        } catch (NumberFormatException e) {
             return 0;
         }
-        String value = text.substring(start + balanceStart.length(), finish).trim();
-        return Integer.parseInt(value);
+    }
+    
+    // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РјРµС‚РѕРґС‹ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РєР°СЂС‚Р°РјРё
+    public SelenideElement getFirstCardElement() {
+        return $("[data-test-id='92df3f1c-a033-48e6-8390-206f6b1f56c0']")
+            .shouldBe(Condition.visible, 15000);
+    }
+    
+    public SelenideElement getSecondCardElement() {
+        return $("[data-test-id='0f3f5c2a-249e-4c3d-8287-09f7a039391d']")
+            .shouldBe(Condition.visible, 15000);
+    }
+    
+    public SelenideElement getDepositButtonForFirstCard() {
+        return $("[data-test-id='92df3f1c-a033-48e6-8390-206f6b1f56c0'] [data-test-id='action-deposit']")
+            .shouldBe(Condition.visible, 15000);
+    }
+    
+    public SelenideElement getDepositButtonForSecondCard() {
+        return $("[data-test-id='0f3f5c2a-249e-4c3d-8287-09f7a039391d'] [data-test-id='action-deposit']")
+            .shouldBe(Condition.visible, 15000);
     }
 }
