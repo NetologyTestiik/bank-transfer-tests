@@ -52,7 +52,7 @@ public class CardTransferTest {
     void setup() {
         // Настройка браузера - ТОЛЬКО размер, timeout указывается в should()
         Configuration.browserSize = "1280x800";
-        Configuration.headless = true; // true для CI, false для локальной отладки
+      
     }
     
     @Test
