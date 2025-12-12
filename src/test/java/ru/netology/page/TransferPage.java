@@ -1,11 +1,11 @@
 package ru.netology.page;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 
 import static com.codeborne.selenide.Selenide.$;
 
 public class TransferPage {
+    // ЭЛЕМЕНТЫ - только локаторы
     private SelenideElement amountField = $("[data-test-id='amount'] input");
     private SelenideElement fromField = $("[data-test-id='from'] input");
     private SelenideElement transferButton = $("[data-test-id='action-transfer']");
@@ -14,6 +14,7 @@ public class TransferPage {
     private SelenideElement amountError = $("[data-test-id='amount'] .input__sub");
     private SelenideElement fromError = $("[data-test-id='from'] .input__sub");
 
+    // ГЕТТЕРЫ - только возвращают элементы
     public SelenideElement getAmountField() {
         return amountField;
     }
@@ -42,6 +43,7 @@ public class TransferPage {
         return fromError;
     }
 
+    // МЕТОДЫ ДЕЙСТВИЙ - только операции
     public void makeTransfer(String amount, String fromCard) {
         amountField.setValue(amount);
         fromField.setValue(fromCard);
