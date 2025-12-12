@@ -2,45 +2,49 @@ package ru.netology.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.Condition;
+
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.*;
 
 public class DashboardPage {
-    private ElementsCollection cards = $$(".list__item");
-    private final String balanceStart = "??????: ";
-    private final String balanceFinish = " ?.";
     
-    // ????????? ??????? ?? ??????? ?????
-    public int getCardBalance(int index) {
-        if (cards.size() > index) {
-            String text = cards.get(index).text();
-            return extractBalance(text);
-        }
-        return 0;
+    public DashboardPage() {
+        // Проверяем, что мы на странице Dashboard
+        $("[data-test-id='dashboard']").shouldBe(visible);
     }
     
-    // ????????? ??????? ?? ?????? ????? (????????? 4 ?????)
-    public int getCardBalance(String cardNumber) {
-        String lastFourDigits = cardNumber.substring(cardNumber.length() - 4);
+    // Проверка наличия карт по последним 4 цифрам
+    public void cardsShouldBeVisible() {
+        $("body").shouldHave(text("**** 0001"));
+        $("body").shouldHave(text("**** 0002"));
+    }
+    
+    // Проверка и клик по кнопке "Пополнить" для конкретной карты
+    public TransferPage clickDepositButton() {
+        $("[data-test-id='action-deposit']")
+                .shouldBe(visible)
+                .shouldHave(text("Пополнить"))
+                .click();
+        return new TransferPage();
+    }
+    
+    // Метод для получения баланса (если нужно в будущем)
+    public int getCardBalance(String lastFourDigits) {
+        ElementsCollection cards = $$(".list__item");
         for (SelenideElement card : cards) {
             if (card.text().contains(lastFourDigits)) {
-                return extractBalance(card.text());
+                String text = card.text();
+                return extractBalance(text);
             }
         }
         return 0;
-    }
-    
-    // ????? ?????????? (????????????? ???)
-    public void selectCardToTransfer(String cardNumber) {
-        String lastFourDigits = cardNumber.substring(cardNumber.length() - 4);
-        for (SelenideElement card : cards) {
-            if (card.text().contains(lastFourDigits)) {
-                card.$("[data-test-id='action-deposit']").click();
-                break;
-            }
-        }
     }
     
     private int extractBalance(String text) {
+        String balanceStart = "баланс: ";
+        String balanceFinish = " р.";
         int start = text.indexOf(balanceStart);
         int finish = text.indexOf(balanceFinish);
         if (start == -1 || finish == -1) {

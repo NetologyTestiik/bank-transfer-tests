@@ -1,6 +1,7 @@
 package ru.netology.page;
 
 import com.codeborne.selenide.SelenideElement;
+import ru.netology.data.DataHelper.AuthInfo;
 import static com.codeborne.selenide.Selenide.$;
 
 public class LoginPage {
@@ -8,9 +9,9 @@ public class LoginPage {
     private SelenideElement passwordField = $("[data-test-id=password] input");
     private SelenideElement loginButton = $("[data-test-id=action-login]");
     
-    public VerificationPage validLogin(String login, String password) {
-        loginField.setValue(login);
-        passwordField.setValue(password);
+    public VerificationPage validLogin(AuthInfo authInfo) {
+        loginField.setValue(authInfo.getLogin());
+        passwordField.setValue(authInfo.getPassword());
         loginButton.click();
         return new VerificationPage();
     }

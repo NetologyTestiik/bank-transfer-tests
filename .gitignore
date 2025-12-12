@@ -18,7 +18,9 @@ bin/
 *.ear
 
 # Gradle
+# Gradle
 .gradle/
+!gradle/wrapper/
 gradle-app.setting
 
 # Logs
