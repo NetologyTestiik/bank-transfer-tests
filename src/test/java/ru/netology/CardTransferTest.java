@@ -2,6 +2,8 @@ package ru.netology;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Condition;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.netology.data.DataHelper;
@@ -9,16 +11,48 @@ import ru.netology.page.DashboardPage;
 import ru.netology.page.LoginPage;
 import ru.netology.page.TransferPage;
 
+import java.io.IOException;
+
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CardTransferTest {
+    private static Process serverProcess;
+    
+    @BeforeAll
+    static void startServer() throws IOException, InterruptedException {
+        // Запускаем сервер из JAR файла
+        String jarPath = "artifacts/app-ibank-build-for-testers.jar";
+        System.out.println("Starting server from: " + jarPath);
+        
+        ProcessBuilder processBuilder = new ProcessBuilder(
+            "java", "-jar", jarPath, "-port=9999"
+        );
+        serverProcess = processBuilder.start();
+        
+        // Ждем запуска сервиса
+        Thread.sleep(5000);
+        System.out.println("Server started on port 9999");
+    }
+    
+    @AfterAll
+    static void stopServer() {
+        if (serverProcess != null && serverProcess.isAlive()) {
+            System.out.println("Stopping server...");
+            serverProcess.destroy();
+            try {
+                serverProcess.waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     
     @BeforeEach
     void setup() {
-        // Настройка браузера
+        // Настройка браузера - ТОЛЬКО размер, timeout указывается в should()
         Configuration.browserSize = "1280x800";
-        Configuration.headless = false; // для визуального наблюдения
+        Configuration.headless = true; // true для CI, false для локальной отладки
     }
     
     @Test
@@ -33,9 +67,9 @@ public class CardTransferTest {
         var verificationPage = loginPage.validLogin(authInfo);
         DashboardPage dashboardPage = verificationPage.validVerify(verificationCode);
         
-        // Проверяем, что мы на странице Dashboard
-        dashboardPage.getFirstCard().shouldBe(Condition.visible, 15000);
-        dashboardPage.getSecondCard().shouldBe(Condition.visible, 15000);
+        // Проверяем, что мы на странице Dashboard и видны карты
+        dashboardPage.getFirstCardElement().shouldBe(Condition.visible, 15000);
+        dashboardPage.getSecondCardElement().shouldBe(Condition.visible, 15000);
         
         // 2. ПОЛУЧАЕМ НАЧАЛЬНЫЕ БАЛАНСЫ
         int initialBalanceFirstCard = dashboardPage.getCardBalance("0001");
@@ -51,18 +85,19 @@ public class CardTransferTest {
         // Нажимаем "Пополнить" на второй карте (куда переводим)
         TransferPage transferPage = dashboardPage.clickDepositOnSecondCard();
         
-        // Проверяем, что форма открылась
+        // Проверяем, что форма открылась с указанием таймаута для каждого элемента
         transferPage.getAmountField().shouldBe(Condition.visible, 15000);
         transferPage.getFromField().shouldBe(Condition.visible, 15000);
         transferPage.getTransferButton().shouldBe(Condition.visible, 15000);
+        transferPage.getCancelButton().shouldBe(Condition.visible, 15000);
         
         // Заполняем форму перевода
         transferPage.makeTransfer(String.valueOf(transferAmount), sourceCard);
         
         // 4. ПРОВЕРЯЕМ РЕЗУЛЬТАТЫ ПЕРЕВОДА
         // Ждем возврата на Dashboard
-        dashboardPage.getFirstCard().shouldBe(Condition.visible, 15000);
-        dashboardPage.getSecondCard().shouldBe(Condition.visible, 15000);
+        dashboardPage.getFirstCardElement().shouldBe(Condition.visible, 15000);
+        dashboardPage.getSecondCardElement().shouldBe(Condition.visible, 15000);
         
         // Получаем конечные балансы
         int finalBalanceFirstCard = dashboardPage.getCardBalance("0001");
@@ -120,7 +155,7 @@ public class CardTransferTest {
         // Нажимаем "Отмена" для возврата на Dashboard
         transferPage.clickCancel();
         
-        dashboardPage.getFirstCard().shouldBe(Condition.visible, 15000);
+        dashboardPage.getFirstCardElement().shouldBe(Condition.visible, 15000);
         
         int balanceAfterAttempt = dashboardPage.getCardBalance("0001");
         assertEquals(balanceFirstCard, balanceAfterAttempt,
@@ -150,7 +185,7 @@ public class CardTransferTest {
         transferPage.getFromField().shouldHave(Condition.cssClass("input_invalid"));
         
         // ИЛИ проверяем текстовые сообщения об ошибках
-        transferPage.getAmountError().shouldBe(Condition.visible)
+        transferPage.getAmountError().shouldBe(Condition.visible, 15000)
             .shouldHave(Condition.text("Поле обязательно для заполнения"));
     }
 }
