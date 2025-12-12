@@ -48,29 +48,39 @@ public class DashboardPage {
         }
         return 0;
     }
+    
 
-    private int extractBalance(String text) {
-        String balanceStart = "баланс: ";
-        String balanceFinish = " р.";
-        
-        int startIndex = text.indexOf(balanceStart);
-        if (startIndex == -1) return 0;
-        
-        startIndex += balanceStart.length();
-        int endIndex = text.indexOf(balanceFinish, startIndex);
-        
-        if (endIndex == -1) return 0;
-        
-        String balanceStr = text.substring(startIndex, endIndex)
-            .replaceAll("\\s+", "")
-            .replaceAll("[^0-9]", "");
-        
-        try {
-            return Integer.parseInt(balanceStr);
-        } catch (NumberFormatException e) {
-            return 0;
+private int extractBalance(String text) {
+    // Ищем баланс в разных форматах
+    String[] patterns = {"баланс: ", "Баланс: ", "balance: "};
+    
+    for (String pattern : patterns) {
+        int startIndex = text.indexOf(pattern);
+        if (startIndex != -1) {
+            startIndex += pattern.length();
+            // Ищем конец числа (руб., ₽, р., или конец строки)
+            int endIndex = text.length();
+            String[] endMarkers = {" р.", " руб.", " ₽", "\n", " "};
+            for (String marker : endMarkers) {
+                int markerIndex = text.indexOf(marker, startIndex);
+                if (markerIndex != -1 && markerIndex < endIndex) {
+                    endIndex = markerIndex;
+                }
+            }
+            
+            String balanceStr = text.substring(startIndex, endIndex)
+                .replaceAll("\\s+", "")
+                .replaceAll("[^0-9]", "");
+            
+            try {
+                return Integer.parseInt(balanceStr);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
         }
     }
+    return 0;
+}
     
     // Дополнительные методы для работы с картами
     public SelenideElement getFirstCardElement() {
