@@ -1,6 +1,7 @@
 package ru.netology;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.netology.data.DataHelper;
@@ -14,33 +15,36 @@ public class CardTransferTest {
     
     @BeforeEach
     void setup() {
-        // Настройка браузера
+        // РќР°СЃС‚СЂРѕР№РєР° Р±СЂР°СѓР·РµСЂР° - РўРћР›Р¬РљРћ СЂР°Р·РјРµСЂ, timeout СѓРєР°Р·С‹РІР°РµС‚СЃСЏ РІ should()
         Configuration.browserSize = "1280x800";
-        Configuration.timeout = 10000;
     }
     
     @Test
     void shouldSuccessfullyLoginAndAccessDepositFeature() {
-        // Получаем тестовые данные через DataHelper
+        // РџРѕР»СѓС‡Р°РµРј С‚РµСЃС‚РѕРІС‹Рµ РґР°РЅРЅС‹Рµ С‡РµСЂРµР· DataHelper
         DataHelper.AuthInfo authInfo = DataHelper.getAuthInfo();
         DataHelper.VerificationCode verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         
-        // Используем Page Objects для авторизации
+        // РСЃРїРѕР»СЊР·СѓРµРј Page Objects РґР»СЏ Р°РІС‚РѕСЂРёР·Р°С†РёРё
         open("http://localhost:9999");
         
         LoginPage loginPage = new LoginPage();
         var verificationPage = loginPage.validLogin(authInfo);
         DashboardPage dashboardPage = verificationPage.validVerify(verificationCode);
         
-        // Проверяем, что мы на странице Dashboard и видны карты
-        dashboardPage.cardsShouldBeVisible();
+        // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РјС‹ РЅР° СЃС‚СЂР°РЅРёС†Рµ Dashboard Рё РІРёРґРЅС‹ РєР°СЂС‚С‹
+        // РЈРєР°Р·С‹РІР°РµРј timeout РґР»СЏ РєР°Р¶РґРѕРіРѕ СѓСЃР»РѕРІРёСЏ
+        dashboardPage.getFirstCard().shouldBe(Condition.visible, 15000);
+        dashboardPage.getSecondCard().shouldBe(Condition.visible, 15000);
         
-        // Проверяем кнопку "Пополнить" и кликаем на нее
-        TransferPage transferPage = dashboardPage.clickDepositButton();
+        // РџСЂРѕРІРµСЂСЏРµРј РєРЅРѕРїРєСѓ "РџРѕРїРѕР»РЅРёС‚СЊ" Рё РєР»РёРєР°РµРј РЅР° РЅРµРµ
+        TransferPage transferPage = dashboardPage.clickDepositOnSecondCard();
         
-        // Проверяем, что форма перевода открылась
-        transferPage.getAmountField().shouldBe(com.codeborne.selenide.Condition.visible);
-        transferPage.getFromField().shouldBe(com.codeborne.selenide.Condition.visible);
-        transferPage.getTransferButton().shouldBe(com.codeborne.selenide.Condition.visible);
+        // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ С„РѕСЂРјР° РїРµСЂРµРІРѕРґР° РѕС‚РєСЂС‹Р»Р°СЃСЊ СЃ СѓРєР°Р·Р°РЅРёРµРј С‚Р°Р№РјР°СѓС‚Р° РґР»СЏ РєР°Р¶РґРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
+        transferPage.getAmountField().shouldBe(Condition.visible, 15000);
+        transferPage.getFromField().shouldBe(Condition.visible, 15000);
+        transferPage.getToField().shouldBe(Condition.visible, 15000);
+        transferPage.getTransferButton().shouldBe(Condition.visible, 15000);
+        transferPage.getCancelButton().shouldBe(Condition.visible, 15000);
     }
 }
