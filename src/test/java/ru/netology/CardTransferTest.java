@@ -40,7 +40,7 @@ public class CardTransferTest {
     void setup() {
         // ТОЛЬКО размер браузера
         Configuration.browserSize = "1280x800";
-        Configuration.headless = true;
+       
     }
     
     @Test
