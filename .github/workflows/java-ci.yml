@@ -21,17 +21,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
- # Шаг 4: Собрать проект, запустить приложение и выполнить тесты
-     steps:
-  - name: Build and start application
-    run: |
-      # Собираем проект (если ещё не собран)
-      ./gradlew build
-
-      # Запускаем приложение в фоновом режиме
-      java -jar app/build/libs/app-deadline.jar &
-
-  # Шаг 5: запустить тесты
+# Шаг 4: Собрать и запустить приложение
+- name: Build and start application
+  run: |
+    # Запускаем приложение в фоновом режиме
+    java -jar app/build/libs/app-deadline.jar &
+      
+  # Шаг 5: выполнить тесты
 
   - name: Run tests in headless mode
     run: |
