@@ -22,12 +22,19 @@ jobs:
         run: chmod +x gradlew
         
  # Шаг 4: Собрать проект, запустить приложение и выполнить тесты
-      - name: Build, start app and run tests
-        run: |
+     steps:
+  - name: Build and start application
+    run: |
+      # Собираем проект (если ещё не собран)
+      ./gradlew build
 
-          # Запускаем приложение в фоновом режиме
-          java -jar app/build/libs/app-deadline.jar &
+      # Запускаем приложение в фоновом режиме
+      java -jar app/build/libs/app-deadline.jar &
 
-          # Запускаем тесты в headless режиме
-          ./gradlew test -Dselenide.headless=true
+  # Шаг 5: запустить тесты
+
+  - name: Run tests in headless mode
+    run: |
+      # Запускаем тесты в headless режиме
+      ./gradlew test -Dselenide.headless=true
       
