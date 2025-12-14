@@ -20,26 +20,14 @@ jobs:
       # Шаг 3: Дать права на выполнение gradlew
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
-      # Шаг 4: Собрать проект, запустить приложение и выполнить тесты
+        
+ # Шаг 4: Собрать проект, запустить приложение и выполнить тесты
       - name: Build, start app and run tests
         run: |
-          # Собираем проект (без тестов)
-          ./gradlew clean build -x test
-          
+
           # Запускаем приложение в фоновом режиме
           java -jar app/build/libs/app-deadline.jar &
-          APP_PID=$!
-          echo "Application started with PID: $APP_PID"
-          
-          # Ждем запуска приложения
-          sleep 10
-          
-          # Проверяем, что приложение запустилось
-          curl -f http://localhost:9999 || exit 1
-          
+
           # Запускаем тесты в headless режиме
           ./gradlew test -Dselenide.headless=true
-          
-          # Останавливаем приложение
-          kill $APP_PID 2>/dev/null || true
+      
