@@ -2,8 +2,6 @@ package ru.netology;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Condition;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.netology.data.DataHelper;
@@ -11,36 +9,15 @@ import ru.netology.page.DashboardPage;
 import ru.netology.page.LoginPage;
 import ru.netology.page.TransferPage;
 
-import java.io.IOException;
-
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CardTransferTest {
-    private static Process serverProcess;
-    
-    @BeforeAll
-    static void startServer() throws IOException, InterruptedException {
-        String jarPath = "artifacts/app-ibank-build-for-testers.jar";
-        ProcessBuilder processBuilder = new ProcessBuilder(
-            "java", "-jar", jarPath, "-port=9999"
-        );
-        serverProcess = processBuilder.start();
-        Thread.sleep(5000);
-    }
-    
-    @AfterAll
-    static void stopServer() {
-        if (serverProcess != null && serverProcess.isAlive()) {
-            serverProcess.destroy();
-        }
-    }
     
     @BeforeEach
     void setup() {
         // ТОЛЬКО размер браузера
         Configuration.browserSize = "1280x800";
-       
     }
     
     @Test
